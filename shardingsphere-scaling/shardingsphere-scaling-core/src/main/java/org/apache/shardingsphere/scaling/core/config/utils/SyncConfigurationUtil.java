@@ -22,11 +22,13 @@ import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.config.DataSourceConfiguration;
-import org.apache.shardingsphere.scaling.core.config.JDBCDataSourceConfiguration;
+
 import org.apache.shardingsphere.scaling.core.config.JobConfiguration;
 import org.apache.shardingsphere.scaling.core.config.RdbmsConfiguration;
 import org.apache.shardingsphere.scaling.core.config.ScalingConfiguration;
 import org.apache.shardingsphere.scaling.core.config.SyncConfiguration;
+import org.apache.shardingsphere.scaling.core.config.JDBCDataSourceConfiguration;
+import org.apache.shardingsphere.scaling.core.config.ShardingTargetDataSourceConfiguration;
 import org.apache.shardingsphere.sharding.algorithm.sharding.inline.InlineExpressionParser;
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
@@ -160,11 +162,19 @@ public final class SyncConfigurationUtil {
     
     private static RdbmsConfiguration createImporterConfiguration(final ScalingConfiguration scalingConfiguration, final ShardingRuleConfiguration shardingRuleConfig) {
         RdbmsConfiguration result = new RdbmsConfiguration();
-        JDBCDataSourceConfiguration importerDataSourceConfiguration = new JDBCDataSourceConfiguration(
-                scalingConfiguration.getRuleConfiguration().getDestinationDataSources().getUrl(),
-                scalingConfiguration.getRuleConfiguration().getDestinationDataSources().getUsername(),
-                scalingConfiguration.getRuleConfiguration().getDestinationDataSources().getPassword());
-        result.setDataSourceConfiguration(importerDataSourceConfiguration);
+        String sDataSources = scalingConfiguration.getRuleConfiguration().getDestinationDataSources().getSourceDatasource();
+        Map<String, DataSourceConfiguration> targetDataSources = ConfigurationYamlConverter.loadDataSourceConfigurations(sDataSources);
+        Map<String, JDBCDataSourceConfiguration> dataSourceConfigurations = new HashMap<>();
+        for (Map.Entry<String, DataSourceConfiguration> entry:targetDataSources.entrySet()) {
+            Map<String, Object> dataSourceProperties = entry.getValue().getProps();
+            JDBCDataSourceConfiguration dataSourceConfiguration = new JDBCDataSourceConfiguration(
+                    dataSourceProperties.containsKey("jdbcUrl") ? dataSourceProperties.get("jdbcUrl").toString() : dataSourceProperties.get("url").toString(),
+                    dataSourceProperties.get("username").toString(), dataSourceProperties.get("password").toString());
+            dataSourceConfigurations.put(entry.getKey(), dataSourceConfiguration);
+        }
+        ShardingRuleConfiguration sourceRule = ConfigurationYamlConverter.loadShardingRuleConfiguration(scalingConfiguration.getRuleConfiguration().getDestinationDataSources().getSourceRule());
+        ShardingTargetDataSourceConfiguration targetDataSourceConfiguration = new ShardingTargetDataSourceConfiguration(dataSourceConfigurations, sourceRule);
+        result.setDataSourceConfiguration(targetDataSourceConfiguration);
         result.setShardingColumnsMap(toShardingColumnsMap(shardingRuleConfig));
         return result;
     }

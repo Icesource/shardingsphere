@@ -18,7 +18,7 @@
 package org.apache.shardingsphere.scaling.core.datasource;
 
 import com.google.gson.Gson;
-import com.zaxxer.hikari.HikariDataSource;
+import org.apache.shardingsphere.driver.jdbc.core.datasource.ShardingSphereDataSource;
 import org.apache.shardingsphere.scaling.core.config.ScalingConfiguration;
 import org.apache.shardingsphere.scaling.core.config.SyncConfiguration;
 import org.apache.shardingsphere.scaling.core.config.utils.SyncConfigurationUtil;
@@ -53,14 +53,14 @@ public final class DataSourceManagerTest {
         DataSourceManager dataSourceManager = new DataSourceManager(syncConfigurations);
         Map cachedDataSources = ReflectionUtil.getFieldValueFromClass(dataSourceManager, "cachedDataSources", Map.class);
         assertNotNull(cachedDataSources);
-        assertThat(cachedDataSources.size(), is(2));
+        assertThat(cachedDataSources.size(), is(3));
     }
     
     @Test
     public void assertGetDataSource() {
         DataSourceManager dataSourceManager = new DataSourceManager();
         DataSource actual = dataSourceManager.getDataSource(syncConfigurations.get(0).getDumperConfiguration().getDataSourceConfiguration());
-        assertThat(actual, instanceOf(HikariDataSource.class));
+        assertThat(actual, instanceOf(ShardingSphereDataSource.class));
     }
     
     @Test

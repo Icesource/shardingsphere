@@ -1,34 +1,13 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 {
   "ruleConfiguration": {
-    "sourceDatasource": "ds_0: !!org.apache.shardingsphere.orchestration.core.common.yaml.config.YamlDataSourceConfiguration\n  dataSourceClassName: com.zaxxer.hikari.HikariDataSource\n  props:\n    jdbcUrl: jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC&useSSL=false\n    username: root\n    password: '123456'\n    connectionTimeout: 30000\n    idleTimeout: 60000\n    maxLifetime: 1800000\n    maxPoolSize: 50\n    minPoolSize: 1\n    maintenanceIntervalMilliseconds: 30000\n    readOnly: false\n",
-    "sourceRule": "defaultDatabaseStrategy:\n  standard:\n    shardingAlgorithmName: inline\n    shardingColumn: user_id\ntables:\n  t1:\n    actualDataNodes: ds_0.t1\n    keyGenerateStrategy:\n      column: order_id\n    logicTable: t1\n    tableStrategy:\n      standard:\n        shardingAlgorithmName: inline\n        shardingColumn: order_id\n  t2:\n    actualDataNodes: ds_0.t2\n    keyGenerateStrategy:\n      column: order_item_id\n    logicTable: t2\n    tableStrategy:\n      standard:\n        shardingAlgorithmName: inline\n        shardingColumn: order_id",
+    "sourceDatasource": "ds0: !!org.apache.shardingsphere.orchestration.core.common.yaml.config.YamlDataSourceConfiguration\r\n  dataSourceClassName: com.zaxxer.hikari.HikariDataSource2\r\n  props:\r\n    password: 123456\r\n    dataSourceJNDI: null\r\n    transactionIsolation: null\r\n    connectionTestQuery: null\r\n    driverClassName: com.mysql.jdbc.Driver\r\n    initializationFailTimeout: 1\r\n    jdbcUrl: jdbc:mysql://localhost:3306/order_1?useSSL=false\r\n    minimumIdle: 10\r\n    maxLifetime: 1800000\r\n    schema: null\r\n    maximumPoolSize: 10\r\n    validationTimeout: 5000\r\n    dataSourceClassName: null\r\n    connectionTimeout: 30000\r\n    idleTimeout: 600000\r\n    leakDetectionThreshold: 0\r\n    connectionInitSql: null\r\n    poolName: HikariPool-1\r\n    catalog: null\r\n    username: root\r\nds1: !!org.apache.shardingsphere.orchestration.core.common.yaml.config.YamlDataSourceConfiguration\r\n  dataSourceClassName: com.zaxxer.hikari.HikariDataSource\r\n  props:\r\n    password: 123456\r\n    dataSourceJNDI: null\r\n    transactionIsolation: null\r\n    connectionTestQuery: null\r\n    driverClassName: com.mysql.jdbc.Driver\r\n    initializationFailTimeout: 1\r\n    jdbcUrl: jdbc:mysql://localhost:3306/order_0?useSSL=false\r\n    minimumIdle: 10\r\n    maxLifetime: 1800000\r\n    schema: null\r\n    maximumPoolSize: 10\r\n    validationTimeout: 5000\r\n    dataSourceClassName: null\r\n    connectionTimeout: 30000\r\n    idleTimeout: 600000\r\n    leakDetectionThreshold: 0\r\n    connectionInitSql: null\r\n    poolName: HikariPool-2\r\n    catalog: null\r\n    username: root\r\n",
+    "sourceRule": "tables:\r\n  t_order:\r\n    actualDataNodes: ds$->{0..1}.t_order_$->{0..1}\r\n    databaseStrategy:\r\n      standard:\r\n        shardingColumn: user_id\r\n        shardingAlgorithmName: t_order_database_inline\r\n    logicTable: t_order\r\n    tableStrategy:\r\n      standard:\r\n        shardingColumn: order_id\r\n        shardingAlgorithmName: t_order_inline\r\nshardingAlgorithms:\r\n  t_order_database_inline:\r\n    type: INLINE\r\n    props:\r\n      algorithm.expression: ds$->{user_id % 2}\r\n  t_order_inline:\r\n    type: INLINE\r\n    props:\r\n      algorithm.expression: t_order_$->{order_id % 2}\r\n",
     "destinationDataSources": {
-        "name": "dt_0",
-        "password": "123456",
-        "url": "jdbc:mysql://127.0.0.1:3306/test2?serverTimezone=UTC&useSSL=false",
-        "username": "root"
-      }
+      "sourceDatasource":"ds0: !!org.apache.shardingsphere.orchestration.core.common.yaml.config.YamlDataSourceConfiguration\r\n  dataSourceClassName: com.zaxxer.hikari.HikariDataSource\r\n  props:\r\n    password: 123456\r\n    driverClassName: com.mysql.jdbc.Driver\r\n    jdbcUrl: jdbc:mysql://localhost:3308/order_0?useSSL=false\r\n    username: root\r\nds1: !!org.apache.shardingsphere.orchestration.core.common.yaml.config.YamlDataSourceConfiguration\r\n  dataSourceClassName: com.zaxxer.hikari.HikariDataSource\r\n  props:\r\n    password: 123456\r\n    driverClassName: com.mysql.jdbc.Driver\r\n    jdbcUrl: jdbc:mysql://localhost:3308/order_1?useSSL=false\r\n    username: root\r\n",
+      "sourceRule": "tables:\r\n  t_order:\r\n    actualDataNodes: ds$->{0..1}.t_order_$->{0..1}\r\n    databaseStrategy:\r\n      standard:\r\n        shardingColumn: user_id\r\n        shardingAlgorithmName: t_order_database_inline\r\n    logicTable: t_order\r\n    tableStrategy:\r\n      standard:\r\n        shardingColumn: order_id\r\n        shardingAlgorithmName: t_order_inline\r\nshardingAlgorithms:\r\n  t_order_database_inline:\r\n    type: INLINE\r\n    props:\r\n      algorithm.expression: ds$->{user_id % 2}\r\n  t_order_inline:\r\n    type: INLINE\r\n    props:\r\n      algorithm.expression: t_order_$->{order_id % 2}\r\n"
+    }
   },
   "jobConfiguration": {
-    "concurrency": 3,
-    "shardingTables": ["ds_0.t1", "ds_0.t2"],
-    "shardingIndex": 0
+    "concurrency": "3"
   }
 }

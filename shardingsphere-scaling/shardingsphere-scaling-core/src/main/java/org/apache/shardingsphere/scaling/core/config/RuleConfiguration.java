@@ -31,18 +31,6 @@ public final class RuleConfiguration {
     
     private String sourceRule;
     
-    private YamlDataSourceParameter destinationDataSources;
-    
-    @Setter
-    @Getter
-    public static final class YamlDataSourceParameter {
-        
-        private String name;
-        
-        private String url;
-        
-        private String username;
-        
-        private String password;
-    }
+    private RuleConfiguration destinationDataSources;
+
 }
