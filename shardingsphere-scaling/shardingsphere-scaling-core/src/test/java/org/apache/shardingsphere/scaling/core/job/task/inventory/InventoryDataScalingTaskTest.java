@@ -32,9 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -43,7 +41,7 @@ import static org.junit.Assert.assertThat;
 public final class InventoryDataScalingTaskTest {
     
     private static final String DATA_SOURCE_URL = "jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;MODE=MySQL";
-    
+
     private static final String USERNAME = "root";
     
     private static final String PASSWORD = "password";

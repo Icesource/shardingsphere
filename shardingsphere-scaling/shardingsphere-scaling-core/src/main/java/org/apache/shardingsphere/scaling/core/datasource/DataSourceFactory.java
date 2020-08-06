@@ -60,6 +60,7 @@ public final class DataSourceFactory {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds0", dataSource1);
         ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
+
         try {
             return ShardingSphereDataSourceFactory.createDataSource(dataSourceMap, Collections.singleton(shardingRuleConfig), new Properties());
         } catch (SQLException ex) {

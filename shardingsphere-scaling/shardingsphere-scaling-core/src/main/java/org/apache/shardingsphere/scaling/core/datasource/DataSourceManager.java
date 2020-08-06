@@ -54,9 +54,9 @@ public final class DataSourceManager implements AutoCloseable {
     private void createSourceDatasources(final List<SyncConfiguration> syncConfigurations) {
         for (SyncConfiguration syncConfiguration : syncConfigurations) {
             DataSourceConfiguration dataSourceConfiguration = syncConfiguration.getDumperConfiguration().getDataSourceConfiguration();
-            ShardingSphereDataSource hikariDataSource = (ShardingSphereDataSource) dataSourceFactory.newInstance(dataSourceConfiguration);
-            cachedDataSources.put(dataSourceConfiguration, hikariDataSource);
-            sourceDatasources.put(dataSourceConfiguration, hikariDataSource);
+            ShardingSphereDataSource shardingSphereDataSource = (ShardingSphereDataSource) dataSourceFactory.newInstance(dataSourceConfiguration);
+            cachedDataSources.put(dataSourceConfiguration, shardingSphereDataSource);
+            sourceDatasources.put(dataSourceConfiguration, shardingSphereDataSource);
         }
     }
 
