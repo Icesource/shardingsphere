@@ -83,9 +83,7 @@ public final class HttpServerHandlerTest {
                 + "dataSourceClassName: com.zaxxer.hikari.HikariDataSource\n  props:\n    "
                 + "jdbcUrl: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;MODE=MySQL\n    username: root\n    password: 'password'\n    connectionTimeout: 30000\n    "
                 + "idleTimeout: 60000\n    maxLifetime: 1800000\n    maxPoolSize: 50\n    minPoolSize: 1\n    maintenanceIntervalMilliseconds: 30000\n    readOnly: false\n");
-        scalingConfiguration.getRuleConfiguration().getDestinationDataSources().setUrl("jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;MODE=MySQL");
-        scalingConfiguration.getRuleConfiguration().getDestinationDataSources().setName("root");
-        scalingConfiguration.getRuleConfiguration().getDestinationDataSources().setPassword("password");
+        scalingConfiguration.getRuleConfiguration().setDestinationDataSources("{\"username\": \"root\",\"password\": \"123456\",\"url\": \"jdbc:mysql://localhost:3308/order?useSSL=false\"}");
         ByteBuf byteBuf = Unpooled.copiedBuffer(GSON.toJson(scalingConfiguration), CharsetUtil.UTF_8);
         fullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/scaling/job/start", byteBuf);
         httpServerHandler.channelRead0(channelHandlerContext, fullHttpRequest);
