@@ -18,10 +18,20 @@
 package org.apache.shardingsphere.scaling.core.datasource;
 
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
+import org.apache.shardingsphere.driver.jdbc.core.datasource.ShardingSphereDataSource;
 import org.apache.shardingsphere.scaling.core.config.DataSourceConfiguration;
 import org.apache.shardingsphere.scaling.core.config.JDBCDataSourceConfiguration;
+import org.apache.shardingsphere.scaling.core.config.ShardingJDBCDataSourceConfiguration;
+import org.apache.shardingsphere.scaling.core.config.ShardingTargetDataSourceConfiguration;
+import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Data source factory.
@@ -34,18 +44,62 @@ public final class DataSourceFactory {
      * @param dataSourceConfiguration data source configuration
      * @return new data source
      */
-    public DataSource newInstance(final DataSourceConfiguration dataSourceConfiguration) {
+    public DataSourceWrapper newInstance(final DataSourceConfiguration dataSourceConfiguration) {
         if (dataSourceConfiguration instanceof JDBCDataSourceConfiguration) {
             return newInstanceDataSourceByJDBC((JDBCDataSourceConfiguration) dataSourceConfiguration);
+        }
+        if (dataSourceConfiguration instanceof ShardingJDBCDataSourceConfiguration) {
+            return newInstanceDataSourceByShardingJDBC((ShardingJDBCDataSourceConfiguration) dataSourceConfiguration);
+        }
+        if (dataSourceConfiguration instanceof ShardingTargetDataSourceConfiguration) {
+            return newInstanceDataSourceByShardingJDBC((ShardingTargetDataSourceConfiguration) dataSourceConfiguration);
         }
         throw new UnsupportedOperationException("Unsupported data source configuration");
     }
     
-    private DataSource newInstanceDataSourceByJDBC(final JDBCDataSourceConfiguration dataSourceConfiguration) {
+    private DataSourceWrapper newInstanceDataSourceByJDBC(final JDBCDataSourceConfiguration dataSourceConfiguration) {
         HikariDataSource result = new HikariDataSource();
         result.setJdbcUrl(dataSourceConfiguration.getJdbcUrl());
         result.setUsername(dataSourceConfiguration.getUsername());
         result.setPassword(dataSourceConfiguration.getPassword());
-        return result;
+        return new HikariDataSourceWrapper(result);
+    }
+    
+    private DataSourceWrapper newInstanceDataSourceByShardingJDBC(final ShardingJDBCDataSourceConfiguration dataSourceConfiguration) {
+        HikariDataSource dataSource1 = new HikariDataSource();
+        dataSource1.setJdbcUrl(dataSourceConfiguration.getJdbcUrl());
+        dataSource1.setUsername(dataSourceConfiguration.getUsername());
+        dataSource1.setPassword(dataSourceConfiguration.getPassword());
+        Map<String, DataSource> dataSourceMap = new HashMap<>();
+        dataSourceMap.put("ds0", dataSource1);
+        ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
+        try {
+            return new ShardingJDBCDataSourceWrapper(
+                    (ShardingSphereDataSource) ShardingSphereDataSourceFactory.createDataSource(dataSourceMap, Collections.singleton(shardingRuleConfig), new Properties())
+            );
+        } catch (SQLException ex) {
+            throw new UnsupportedOperationException("Failed to create shardingJDBC data source");
+        }
+    }
+    
+    private DataSourceWrapper newInstanceDataSourceByShardingJDBC(final ShardingTargetDataSourceConfiguration dataSourceConfiguration) {
+        Map<String, DataSource> dataSourceMap = new HashMap<>();
+        Map<String, JDBCDataSourceConfiguration> datasources = dataSourceConfiguration.getDataSources();
+        for (Map.Entry<String, JDBCDataSourceConfiguration> entry: datasources.entrySet()) {
+            HikariDataSource dataSource = new HikariDataSource();
+            JDBCDataSourceConfiguration eachDataSourceConfiguration = entry.getValue();
+            dataSource.setJdbcUrl(eachDataSourceConfiguration.getJdbcUrl());
+            dataSource.setUsername(eachDataSourceConfiguration.getUsername());
+            dataSource.setPassword(eachDataSourceConfiguration.getPassword());
+            dataSourceMap.put(entry.getKey(), dataSource);
+        }
+        ShardingRuleConfiguration shardingRuleConfig = dataSourceConfiguration.getShardingRule();
+        try {
+            return new ShardingJDBCDataSourceWrapper(
+                    (ShardingSphereDataSource) ShardingSphereDataSourceFactory.createDataSource(dataSourceMap, Collections.singleton(shardingRuleConfig), new Properties())
+            );
+        } catch (SQLException ex) {
+            throw new UnsupportedOperationException("Failed to create shardingJDBC data source");
+        }
     }
 }
