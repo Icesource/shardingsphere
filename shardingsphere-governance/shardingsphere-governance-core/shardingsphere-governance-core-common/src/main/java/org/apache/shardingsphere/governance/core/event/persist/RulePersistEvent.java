@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.infra.eventbus.event;
+package org.apache.shardingsphere.governance.core.event.persist;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.governance.core.event.GovernanceEvent;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 
 import java.util.Collection;
@@ -28,7 +29,7 @@ import java.util.Collection;
  */
 @RequiredArgsConstructor
 @Getter
-public final class RuleEvent {
+public final class RulePersistEvent implements GovernanceEvent {
     
     private final String schemaName;
     

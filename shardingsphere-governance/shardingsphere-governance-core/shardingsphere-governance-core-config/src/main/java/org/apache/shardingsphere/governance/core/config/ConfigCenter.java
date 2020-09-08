@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import org.apache.shardingsphere.encrypt.algorithm.config.AlgorithmProvidedEncryptRuleConfiguration;
 import org.apache.shardingsphere.encrypt.api.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.governance.core.yaml.config.YamlDataSourceConfiguration;
+import org.apache.shardingsphere.governance.core.yaml.config.YamlDataSourceConfigurationWrap;
 import org.apache.shardingsphere.governance.core.yaml.swapper.DataSourceConfigurationYamlSwapper;
 import org.apache.shardingsphere.governance.repository.api.ConfigurationRepository;
 import org.apache.shardingsphere.infra.auth.Authentication;
@@ -32,10 +33,10 @@ import org.apache.shardingsphere.infra.auth.yaml.config.YamlAuthenticationConfig
 import org.apache.shardingsphere.infra.auth.yaml.swapper.AuthenticationYamlSwapper;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
-import org.apache.shardingsphere.infra.eventbus.ShardingSphereEventBus;
-import org.apache.shardingsphere.infra.eventbus.event.DataSourceEvent;
-import org.apache.shardingsphere.infra.eventbus.event.RuleEvent;
-import org.apache.shardingsphere.infra.eventbus.event.SchemaNameEvent;
+import org.apache.shardingsphere.governance.core.eventbus.ShardingSphereEventBus;
+import org.apache.shardingsphere.governance.core.event.persist.DataSourcePersistEvent;
+import org.apache.shardingsphere.governance.core.event.persist.RulePersistEvent;
+import org.apache.shardingsphere.governance.core.event.persist.SchemaNamePersistEvent;
 import org.apache.shardingsphere.infra.yaml.config.YamlRootRuleConfigurations;
 import org.apache.shardingsphere.infra.yaml.engine.YamlEngine;
 import org.apache.shardingsphere.infra.yaml.swapper.YamlRuleConfigurationSwapperEngine;
@@ -104,7 +105,7 @@ public final class ConfigCenter {
      * @param event Data source event.
      */
     @Subscribe
-    public synchronized void renew(final DataSourceEvent event) {
+    public synchronized void renew(final DataSourcePersistEvent event) {
         persistDataSourceConfigurations(event.getSchemaName(), event.getDataSourceConfigurations());
     }
     
@@ -114,7 +115,7 @@ public final class ConfigCenter {
      * @param event Rule event.
      */
     @Subscribe
-    public synchronized void renew(final RuleEvent event) {
+    public synchronized void renew(final RulePersistEvent event) {
         persistRuleConfigurations(event.getSchemaName(), event.getRuleConfigurations());
     }
     
@@ -124,7 +125,7 @@ public final class ConfigCenter {
      * @param event Schema name event.
      */
     @Subscribe
-    public synchronized void renew(final SchemaNameEvent event) {
+    public synchronized void renew(final SchemaNamePersistEvent event) {
         persistSchema(event.getSchemaName(), event.isDrop());
     }
     
@@ -138,7 +139,9 @@ public final class ConfigCenter {
         Preconditions.checkState(null != dataSourceConfigurations && !dataSourceConfigurations.isEmpty(), "No available data source in `%s` for governance.", schemaName);
         Map<String, YamlDataSourceConfiguration> yamlDataSourceConfigurations = dataSourceConfigurations.entrySet().stream()
                 .collect(Collectors.toMap(Entry::getKey, entry -> new DataSourceConfigurationYamlSwapper().swapToYamlConfiguration(entry.getValue())));
-        repository.persist(node.getDataSourcePath(schemaName), YamlEngine.marshal(yamlDataSourceConfigurations));
+        YamlDataSourceConfigurationWrap yamlDataSourceConfigurationWrap = new YamlDataSourceConfigurationWrap();
+        yamlDataSourceConfigurationWrap.setDataSources(yamlDataSourceConfigurations);
+        repository.persist(node.getDataSourcePath(schemaName), YamlEngine.marshal(yamlDataSourceConfigurationWrap));
     }
     
     private void persistRuleConfigurations(final String schemaName, final Collection<RuleConfiguration> ruleConfigurations, final boolean isOverwrite) {
@@ -245,13 +248,12 @@ public final class ConfigCenter {
      * @param schemaName schema name
      * @return data source configurations
      */
-    @SuppressWarnings("unchecked")
     public Map<String, DataSourceConfiguration> loadDataSourceConfigurations(final String schemaName) {
         if (!hasDataSourceConfiguration(schemaName)) {
             return new LinkedHashMap<>();
         }
-        Map<String, YamlDataSourceConfiguration> result = (Map) YamlEngine.unmarshal(repository.get(node.getDataSourcePath(schemaName)));
-        return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> new DataSourceConfigurationYamlSwapper().swapToObject(entry.getValue())));
+        YamlDataSourceConfigurationWrap result = YamlEngine.unmarshal(repository.get(node.getDataSourcePath(schemaName)), YamlDataSourceConfigurationWrap.class);
+        return result.getDataSources().entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> new DataSourceConfigurationYamlSwapper().swapToObject(entry.getValue())));
     }
     
     /**

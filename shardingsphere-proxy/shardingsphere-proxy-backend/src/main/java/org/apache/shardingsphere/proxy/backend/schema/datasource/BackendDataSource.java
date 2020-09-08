@@ -15,22 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.infra.eventbus.event;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
-
-import java.util.Map;
+package org.apache.shardingsphere.proxy.backend.schema.datasource;
 
 /**
- * Data source event.
+ * Backend data source.
  */
-@RequiredArgsConstructor
-@Getter
-public final class DataSourceEvent {
-    
-    private final String schemaName;
-    
-    private final Map<String, DataSourceConfiguration> dataSourceConfigurations;
+public interface BackendDataSource {
 }

@@ -15,28 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.infra.eventbus;
+package org.apache.shardingsphere.governance.core.event.persist;
 
-import com.google.common.eventbus.EventBus;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.governance.core.event.GovernanceEvent;
 
 /**
- * ShardingSphere event bus.
+ * Schema name event.
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShardingSphereEventBus {
+@RequiredArgsConstructor
+@Getter
+public final class SchemaNamePersistEvent implements GovernanceEvent {
     
-    /**
-     * Get instance of ShardingSphere event bus.
-     *
-     * @return instance of ShardingSphere event bus
-     */
-    public static EventBus getInstance() {
-        return ShardingSphereEventBusHolder.INSTANCE;
-    }
+    private final String schemaName;
     
-    private static final class ShardingSphereEventBusHolder {
-        private static final EventBus INSTANCE = new EventBus();
-    }
+    private final boolean isDrop; 
 }

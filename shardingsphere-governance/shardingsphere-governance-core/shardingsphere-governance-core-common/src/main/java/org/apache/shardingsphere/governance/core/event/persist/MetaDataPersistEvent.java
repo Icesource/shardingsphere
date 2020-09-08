@@ -15,10 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.proxy.backend;
+package org.apache.shardingsphere.governance.core.event.persist;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.governance.core.event.GovernanceEvent;
+import org.apache.shardingsphere.infra.metadata.schema.RuleSchemaMetaData;
 
 /**
- * Backend data source.
+ * Meta data event.
  */
-public interface BackendDataSource {
+@RequiredArgsConstructor
+@Getter
+public final class MetaDataPersistEvent implements GovernanceEvent {
+    
+    private final String schemaName;
+    
+    private final RuleSchemaMetaData metaData;
 }

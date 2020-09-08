@@ -15,15 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.proxy.fixture;
+package org.apache.shardingsphere.governance.core.yaml.config;
 
+import java.util.Map;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.infra.config.RuleConfiguration;
+import lombok.Setter;
+import org.apache.shardingsphere.infra.yaml.config.YamlConfiguration;
 
-@RequiredArgsConstructor
+/**
+ * Data source configuration warp for YAML.
+ */
 @Getter
-public final class FixtureRuleConfiguration implements RuleConfiguration {
+@Setter
+public final class YamlDataSourceConfigurationWrap implements YamlConfiguration {
     
-    private final String name;
+    private Map<String, YamlDataSourceConfiguration> dataSources;
 }

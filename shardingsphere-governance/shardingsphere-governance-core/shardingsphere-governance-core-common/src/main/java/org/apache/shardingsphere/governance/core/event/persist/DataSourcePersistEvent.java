@@ -15,19 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.infra.eventbus.event;
+package org.apache.shardingsphere.governance.core.event.persist;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.governance.core.event.GovernanceEvent;
+import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
+
+import java.util.Map;
 
 /**
- * Schema name event.
+ * Data source event.
  */
 @RequiredArgsConstructor
 @Getter
-public final class SchemaNameEvent {
+public final class DataSourcePersistEvent implements GovernanceEvent {
     
     private final String schemaName;
     
-    private final boolean isDrop; 
+    private final Map<String, DataSourceConfiguration> dataSourceConfigurations;
 }

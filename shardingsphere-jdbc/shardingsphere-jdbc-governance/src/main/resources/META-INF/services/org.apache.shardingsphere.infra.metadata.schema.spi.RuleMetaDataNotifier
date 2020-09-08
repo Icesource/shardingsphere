@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-org.apache.shardingsphere.proxy.frontend.postgresql.PostgreSQLFrontendEngine
+org.apache.shardingsphere.driver.governance.internal.metadata.RuleSchemaMetaDataNotifier

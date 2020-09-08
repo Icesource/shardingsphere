@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.proxy.fixture;
+package org.apache.shardingsphere.governance.core.eventbus;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.infra.config.RuleConfiguration;
+import org.junit.Test;
 
-@RequiredArgsConstructor
-@Getter
-public final class FixtureRuleConfiguration implements RuleConfiguration {
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public final class ShardingSphereEventBusTest {
     
-    private final String name;
+    @Test
+    public void assertInstance() {
+        assertThat(ShardingSphereEventBus.getInstance(), is(ShardingSphereEventBus.getInstance()));
+    }
 }
