@@ -17,11 +17,23 @@
 
 package org.apache.shardingsphere.scaling.core.datasource;
 
-import javax.sql.DataSource;
-import java.io.Closeable;
+import org.apache.shardingsphere.driver.jdbc.unsupported.AbstractUnsupportedOperationDataSource;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Data source wrapper is for abstract standard jdbc and sharding jdbc.
  */
-public interface DataSourceWrapper extends DataSource, Closeable {
+public abstract class DataSourceWrapper extends AbstractUnsupportedOperationDataSource implements AutoCloseable {
+    
+    @Override
+    public abstract void close();
+    
+    @Override
+    public abstract Connection getConnection() throws SQLException;
+    
+    @Override
+    public abstract Connection getConnection(String username, String password) throws SQLException;
+    
 }

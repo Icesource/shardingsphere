@@ -21,21 +21,17 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.driver.jdbc.core.datasource.ShardingSphereDataSource;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
 
 @AllArgsConstructor
-public final class ShardingJDBCDataSourceWrapper implements DataSourceWrapper {
+public final class ShardingJDBCDataSourceWrapper extends DataSourceWrapper {
     
     private final ShardingSphereDataSource dataSource;
     
     @Override
     @SneakyThrows
-    public void close() throws IOException {
+    public void close() {
         dataSource.close();
     }
     
@@ -49,38 +45,4 @@ public final class ShardingJDBCDataSourceWrapper implements DataSourceWrapper {
         return dataSource.getConnection(username, password);
     }
     
-    @Override
-    public <T> T unwrap(final Class<T> iface) throws SQLException {
-        return dataSource.unwrap(iface);
-    }
-    
-    @Override
-    public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-        return dataSource.isWrapperFor(iface);
-    }
-    
-    @Override
-    public PrintWriter getLogWriter() throws SQLException {
-        return dataSource.getLogWriter();
-    }
-    
-    @Override
-    public void setLogWriter(final PrintWriter out) throws SQLException {
-        dataSource.setLogWriter(out);
-    }
-    
-    @Override
-    public void setLoginTimeout(final int seconds) throws SQLException {
-        dataSource.setLoginTimeout(seconds);
-    }
-    
-    @Override
-    public int getLoginTimeout() throws SQLException {
-        return dataSource.getLoginTimeout();
-    }
-    
-    @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        return dataSource.getParentLogger();
-    }
 }

@@ -169,7 +169,6 @@ public final class SyncConfigurationUtil {
     
     private static ImporterConfiguration createImporterConfiguration(final ScalingConfiguration scalingConfiguration, final ShardingRuleConfiguration shardingRuleConfig) {
         ImporterConfiguration result = new ImporterConfiguration();
-        
         String destinationStr = scalingConfiguration.getRuleConfiguration().getDestinationDataSources();
         if (scalingConfiguration.getJobConfiguration().isUseShardingJDBC()) {
             ShardingDataSourceParameter sourceParameter = GSON.fromJson(destinationStr, ShardingDataSourceParameter.class);
