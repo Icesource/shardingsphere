@@ -35,4 +35,5 @@ public final class ImporterConfiguration {
     private Map<String, Set<String>> shardingColumnsMap;
     
     private int retryTimes;
+    
 }

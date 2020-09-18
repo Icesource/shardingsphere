@@ -20,23 +20,21 @@ package org.apache.shardingsphere.scaling.core.datasource;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
 import org.apache.shardingsphere.driver.jdbc.core.datasource.ShardingSphereDataSource;
+import org.apache.shardingsphere.infra.yaml.config.YamlRootRuleConfigurations;
+import org.apache.shardingsphere.infra.yaml.swapper.YamlRuleConfigurationSwapperEngine;
 import org.apache.shardingsphere.scaling.core.config.DataSourceConfiguration;
 import org.apache.shardingsphere.scaling.core.config.JDBCDataSourceConfiguration;
 import org.apache.shardingsphere.scaling.core.config.ShardingTargetDataSourceConfiguration;
 import org.apache.shardingsphere.scaling.core.exception.PrepareFailedException;
-import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Data source factory.
  */
 public final class DataSourceFactory {
+    
+    private static final YamlRuleConfigurationSwapperEngine SWAPPER_ENGINE = new YamlRuleConfigurationSwapperEngine();
     
     /**
      * New instance data source.
@@ -63,20 +61,10 @@ public final class DataSourceFactory {
     }
     
     private DataSourceWrapper newInstanceDataSourceByShardingJDBC(final ShardingTargetDataSourceConfiguration dataSourceConfiguration) {
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
-        Map<String, JDBCDataSourceConfiguration> datasources = dataSourceConfiguration.getDataSources();
-        for (Map.Entry<String, JDBCDataSourceConfiguration> entry: datasources.entrySet()) {
-            HikariDataSource dataSource = new HikariDataSource();
-            JDBCDataSourceConfiguration eachDataSourceConfiguration = entry.getValue();
-            dataSource.setJdbcUrl(eachDataSourceConfiguration.getJdbcUrl());
-            dataSource.setUsername(eachDataSourceConfiguration.getUsername());
-            dataSource.setPassword(eachDataSourceConfiguration.getPassword());
-            dataSourceMap.put(entry.getKey(), dataSource);
-        }
-        ShardingRuleConfiguration shardingRuleConfig = dataSourceConfiguration.getShardingRule();
+        YamlRootRuleConfigurations configurations = dataSourceConfiguration.getConfigurations();
         try {
             return new ShardingJDBCDataSourceWrapper(
-                    (ShardingSphereDataSource) ShardingSphereDataSourceFactory.createDataSource(dataSourceMap, Collections.singleton(shardingRuleConfig), new Properties())
+                    (ShardingSphereDataSource) ShardingSphereDataSourceFactory.createDataSource(configurations.getDataSources(), SWAPPER_ENGINE.swapToRuleConfigurations(configurations.getRules()), configurations.getProps())
             );
         } catch (SQLException ex) {
             throw new PrepareFailedException("Failed to create shardingJDBC data source");
